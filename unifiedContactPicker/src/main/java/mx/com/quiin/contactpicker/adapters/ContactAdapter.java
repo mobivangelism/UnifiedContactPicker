@@ -17,12 +17,13 @@ import com.bignerdranch.expandablerecyclerview.ExpandableRecyclerAdapter;
 import com.github.ivbaranov.mli.MaterialLetterIcon;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
-import mx.com.quiin.contactpicker.R;
 import mx.com.quiin.contactpicker.Contact;
-import mx.com.quiin.contactpicker.SimpleContact;
 import mx.com.quiin.contactpicker.PickerUtils;
+import mx.com.quiin.contactpicker.R;
+import mx.com.quiin.contactpicker.SimpleContact;
 import mx.com.quiin.contactpicker.interfaces.ContactSelectionListener;
 import mx.com.quiin.contactpicker.views.CommunicationViewHolder;
 import mx.com.quiin.contactpicker.views.ContactViewHolder;
@@ -43,7 +44,8 @@ public class ContactAdapter extends ExpandableRecyclerAdapter<Contact, String, C
     private final ContactSelectionListener mListener;
     private final int selectedIconColor;
 
-    public ContactAdapter(Context context, List<Contact> contacts, ContactSelectionListener listener, String selectedIconHex, byte[] selectedDrawable) {
+    public ContactAdapter(Context context, List<Contact> contacts, ContactSelectionListener listener,
+                          String selectedIconHex, byte[] selectedDrawable) {
         super(contacts);
         this.mMaterialColors = context.getResources().getIntArray(R.array.colors);
         this.mContacts = contacts;
@@ -166,6 +168,37 @@ public class ContactAdapter extends ExpandableRecyclerAdapter<Contact, String, C
             Log.e(TAG, "onBindViewHolder: contact null");
     }
 
+    public void selectContact(Contact selectedContact) {
+        for (int i = 0; i < getItemCount(); i++) {
+            Contact contact = mContacts.get(i);
+
+            if(contact.getDisplayName().equals(selectedContact.getDisplayName())) {
+                if (!mSelection.contains(contact)) {
+                    contact.setSelected(true);
+                    contact.setSelectedCommunication(selectedContact.getSelectedCommunication());
+                    mSelection.add(contact);
+                    notifyParentChanged(i);
+                }
+                break;
+            }
+        }
+    }
+
+    public void deselectContact(Contact selectedContact) {
+        for (int i = 0; i < getItemCount(); i++) {
+            Contact contact = mContacts.get(i);
+
+            if(contact.getDisplayName().equals(selectedContact.getDisplayName())) {
+                if (mSelection.contains(contact)) {
+                    mSelection.remove(contact);
+                    contact.setSelected(false);
+                    notifyParentChanged(i);
+                }
+                break;
+            }
+        }
+    }
+
     private void expand(Contact contact, ContactViewHolder parentViewHolder) {
         if(parentViewHolder.isExpanded())
             collapseParent(contact);
@@ -201,10 +234,12 @@ public class ContactAdapter extends ExpandableRecyclerAdapter<Contact, String, C
                 contact.setSelectedCommunication(communication);
             }
         }else{
-            contact.setSelected(true);
-            contact.setSelectedCommunication(communication);
-            mSelection.add(contact);
-            mListener.onContactSelected(contact, communication);
+            if (mListener.canSelectContact()) {
+                contact.setSelected(true);
+                contact.setSelectedCommunication(communication);
+                mSelection.add(contact);
+                mListener.onContactSelected(contact, communication);
+            }
         }
         notifyParentChanged(parentPosition);
     }
@@ -249,6 +284,22 @@ public class ContactAdapter extends ExpandableRecyclerAdapter<Contact, String, C
         ArrayList<SimpleContact> selected = new ArrayList<>();
         for (Contact contact : mSelection) {
             selected.add(contact.simplify());
+        }
+        return selected;
+    }
+
+    public HashMap<String, SimpleContact> getSelectionKeyedByDisplayName(){
+        HashMap<String, SimpleContact> selected = new HashMap<>();
+        for (Contact contact : mSelection) {
+            selected.put(contact.getDisplayName(), contact.simplify());
+        }
+        return selected;
+    }
+
+    public HashMap<String, SimpleContact> getSelectionKeyedByCommunication(){
+        HashMap<String, SimpleContact> selected = new HashMap<>();
+        for (Contact contact : mSelection) {
+            selected.put(contact.getSelectedCommunication(), contact.simplify());
         }
         return selected;
     }

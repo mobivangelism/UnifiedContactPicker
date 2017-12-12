@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <plurals name="max_contacts_selected">
+        <item quantity="one">You cannot select more than one contact.</item>
+        <item quantity="other">You have reached the maximum of %1$d contact selections.</item>
+    </plurals>
+</resources>

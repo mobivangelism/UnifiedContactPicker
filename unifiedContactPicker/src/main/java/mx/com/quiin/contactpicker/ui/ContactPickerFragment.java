@@ -1,10 +1,10 @@
 package mx.com.quiin.contactpicker.ui;
 
 import android.database.Cursor;
+import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -12,12 +12,14 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.MultiAutoCompleteTextView;
-
+import android.widget.Toast;
 
 import com.hootsuite.nachos.NachoTextView;
 import com.hootsuite.nachos.chip.Chip;
@@ -26,17 +28,16 @@ import com.hootsuite.nachos.terminator.ChipTerminatorHandler;
 import com.hootsuite.nachos.tokenizer.SpanChipTokenizer;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 import java.util.TreeSet;
 
+import mx.com.quiin.contactpicker.Contact;
 import mx.com.quiin.contactpicker.ContactChipCreator;
+import mx.com.quiin.contactpicker.R;
 import mx.com.quiin.contactpicker.SimpleContact;
 import mx.com.quiin.contactpicker.adapters.AutoCompleteAdapter;
 import mx.com.quiin.contactpicker.adapters.ContactAdapter;
-import mx.com.quiin.contactpicker.R;
-import mx.com.quiin.contactpicker.Contact;
 import mx.com.quiin.contactpicker.interfaces.ContactSelectionListener;
 import mx.com.quiin.contactpicker.views.CPLinearLayoutManager;
 
@@ -52,6 +53,8 @@ public class ContactPickerFragment extends Fragment
     private String selection;
     private String[] selectionArgs;
     private String sortBy;
+    private int maxSelectedContacts;
+    private boolean selectDisplayName;
 
     private static final int CONTACT_LOADER_ID = 666;
     private static final String SELECTION_SAVE = "SELECTION_SAVE";
@@ -63,6 +66,8 @@ public class ContactPickerFragment extends Fragment
     private ArrayList<Contact> mContacts = new ArrayList<>();
     private final ArrayList<Contact> mSuggestions = new ArrayList<>();
     private ContactPickerActivity mActivity;
+
+    private int mChipSize = 0;
 
     /*** Fragment callbacks ***/
 
@@ -95,7 +100,7 @@ public class ContactPickerFragment extends Fragment
         this.mNachoTextView.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
         this.mNachoTextView.setThreshold(3);
         this.mNachoTextView.setMaxLines(2);
-        this.mNachoTextView.addChipTerminator(' ', ChipTerminatorHandler.BEHAVIOR_CHIPIFY_TO_TERMINATOR);
+
         this.mNachoTextView.setChipTokenizer(new SpanChipTokenizer<>(getContext(), new ContactChipCreator(), ChipSpan.class));
 
     }
@@ -154,8 +159,67 @@ public class ContactPickerFragment extends Fragment
         }
 
         setRecyclerView();
-        AutoCompleteAdapter adapter = new AutoCompleteAdapter(getContext(),R.layout.cp_suggestion_row, mSuggestions);
+        AutoCompleteAdapter adapter = new AutoCompleteAdapter(getContext(),R.layout.cp_suggestion_row, mSuggestions, selectDisplayName);
         this.mNachoTextView.setAdapter(adapter);
+
+        this.mNachoTextView.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                validateNewChip();
+            }
+        });
+    }
+
+    /**
+     * Duplicate chip + max selection check
+     */
+    private void validateNewChip() {
+        // get last chip and check if it already exists, or goes over maxSelectedContacts limit
+        List<Chip> chips = mNachoTextView.getAllChips();
+        int chipSize = chips.size();
+
+        // only check if we're sure that there are new chips
+        // TODO handle chips deleted directly
+        if (chipSize > mChipSize) {
+            mChipSize = chipSize;
+
+            if (chipSize > 0) {
+                Chip lastChip = chips.get(chipSize - 1);
+
+                if (lastChip != null) {
+                    // check if lastChip already exists
+                    if (chips.size() > 1) {
+                        for (Chip chip : chips.subList(0, chipSize - 1)) {
+                            if (chip.getText().toString().equals(lastChip.getText().toString())) {
+                                removeChip(lastChip);
+                                return;
+                            }
+                        }
+                    }
+
+                    // doesn't exist, but check if we've reached max selections
+                    if (maxSelectedContacts > 0 && chips.size() > maxSelectedContacts) {
+                        removeChip(lastChip);
+                        onMaxContactsReached();
+                    }
+
+                    // make sure it's selected (if available)
+                    Contact contact = (Contact)lastChip.getData();
+
+                    if (contact != null) {
+                        mContactAdapter.selectContact(contact);
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -177,7 +241,25 @@ public class ContactPickerFragment extends Fragment
      */
     @Override
     public void onContactSelected(Contact contact, String communication) {
-        addChip(communication);
+        if (selectDisplayName) {
+            addChip(contact.getDisplayName());
+        } else {
+            addChip(communication);
+        }
+    }
+
+    /**
+     * Check to see whether we already have max contacts selected
+     * @return
+     */
+    @Override
+    public boolean canSelectContact() {
+        if (maxSelectedContacts == 0 || mNachoTextView.getAllChips().size() < maxSelectedContacts) {
+            return true;
+        }
+
+        onMaxContactsReached();
+        return false;
     }
 
     /**
@@ -188,13 +270,38 @@ public class ContactPickerFragment extends Fragment
      */
     @Override
     public void onContactDeselected(Contact contact, String communication) {
-        Chip toRemove = null;
+        if (selectDisplayName) {
+            removeChipByIdentifier(contact.getDisplayName());
+        } else {
+            removeChipByIdentifier(communication);
+        }
+    }
+
+    private void removeChipByIdentifier(String identifier) {
+        Chip chip = getChipByIdentifier(identifier);
+
+        if (chip != null) {
+            removeChip(chip);
+        }
+    }
+
+    private Chip getChipByIdentifier(String identifier) {
         for (Chip chip : mNachoTextView.getAllChips()) {
-            if(chip.getText().equals(communication))
-                toRemove = chip;
+            if (chip.getText().equals(identifier)) {
+                return chip;
+            }
         }
 
-        removeChip(toRemove);
+        return null;
+    }
+
+    /**
+     * Called when max number of contacts, as defined by CP_MAX_SELECTIONS reached
+     */
+    public void onMaxContactsReached() {
+        Toast.makeText(getContext(),
+                String.format(getResources().getQuantityString(R.plurals.max_contacts_selected, maxSelectedContacts), maxSelectedContacts),
+                Toast.LENGTH_LONG).show();
     }
 
     /*** Private methods ***/
@@ -214,6 +321,13 @@ public class ContactPickerFragment extends Fragment
 
     private void addChip(String communication) {
         if(mNachoTextView != null){
+            for (Chip chip : mNachoTextView.getAllChips()) {
+                if (chip.getText().toString().equals(communication)) {
+                    // already exists
+                    return;
+                }
+            }
+
             mNachoTextView.append(communication);
             int start = mNachoTextView.getText().toString().indexOf(communication);
             int last = mNachoTextView.getText().length();
@@ -233,9 +347,16 @@ public class ContactPickerFragment extends Fragment
         else
             this.mNachoTextView.setVisibility(View.GONE);
 
+        this.selectDisplayName = mActivity.getSelectDisplayName();
+
+        if (selectDisplayName)
+            this.mNachoTextView.addChipTerminator('\n', ChipTerminatorHandler.BEHAVIOR_CHIPIFY_ALL);
+        else
+            this.mNachoTextView.addChipTerminator(' ', ChipTerminatorHandler.BEHAVIOR_CHIPIFY_TO_TERMINATOR);
 
         this.projection = mActivity.getProjection();
         this.selection = mActivity.getSelect();
+        this.maxSelectedContacts = mActivity.getMaxSelectedContacts();
         this.selectionArgs = mActivity.getSelectArgs();
         this.sortBy = mActivity.getSortBy();
     }
@@ -245,18 +366,38 @@ public class ContactPickerFragment extends Fragment
     public TreeSet<SimpleContact> getSelected(){
         TreeSet<SimpleContact> toReturn = new TreeSet<>();
         if(this.mNachoTextView != null){
-            Set<SimpleContact> chips = new HashSet<>();
 
-            for (String s : this.mNachoTextView.getChipValues()) {
-                chips.add(new SimpleContact(s,s));
+            ArrayList<SimpleContact> selectedContacts = new ArrayList<>();
+
+            for (Chip chip : this.mNachoTextView.getAllChips()) {
+                String text = chip.getText().toString();
+                Contact contact = (Contact)chip.getData();
+
+                if (contact != null) {
+                    selectedContacts.add(new SimpleContact(contact.getDisplayName(), contact.getSelectedCommunication()));
+                } else {
+                    selectedContacts.add(new SimpleContact(text, text));
+                }
             }
 
-            List<SimpleContact> selected = this.mContactAdapter.getSelection();
-            for (SimpleContact simpleContact : chips) {
-                if(selected.contains(simpleContact))
-                    toReturn.add(selected.get(selected.indexOf(simpleContact)));
-                else
-                    toReturn.add(simpleContact);
+            if (selectDisplayName) {
+                HashMap<String, SimpleContact> selected = this.mContactAdapter.getSelectionKeyedByDisplayName();
+
+                for (SimpleContact simpleContact : selectedContacts) {
+                    if(selected.containsKey(simpleContact.getDisplayName()))
+                        toReturn.add(selected.get(simpleContact.getDisplayName()));
+                    else
+                        toReturn.add(simpleContact);
+                }
+            } else {
+                HashMap<String, SimpleContact> selected = this.mContactAdapter.getSelectionKeyedByCommunication();
+
+                for (SimpleContact simpleContact : selectedContacts) {
+                    if(selected.containsKey(simpleContact.getCommunication()))
+                        toReturn.add(selected.get(simpleContact.getCommunication()));
+                    else
+                        toReturn.add(simpleContact);
+                }
             }
         }
         return toReturn;

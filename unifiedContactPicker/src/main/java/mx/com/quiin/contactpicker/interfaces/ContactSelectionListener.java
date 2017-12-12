@@ -9,4 +9,5 @@ import mx.com.quiin.contactpicker.Contact;
 public interface ContactSelectionListener {
     void onContactSelected(Contact contact, String communication);
     void onContactDeselected(Contact contact, String communication);
+    boolean canSelectContact();
 }

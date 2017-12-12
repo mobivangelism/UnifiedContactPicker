@@ -126,6 +126,13 @@ Aditionally, you can customize the contact query parameters used to extract the 
 |CP_EXTRA_HAS_CUSTOM_SELECTION_ARGS | boolean   |
 |CP_EXTRA_SORT_BY                   | String    |
 
+Finally, you can restrict the number of contacts selected, or show the contact's display name in the chip instead of the communication text.
+
+| Extra                             |   Type    |
+|:---------------------------------:|:---------:|
+|CP_EXTRA_MAX_SELECTIONS            | int       |
+|CP_EXTRA_SELECT_DISPLAY_NAME       | boolean   |
+
 #### Example
 ```java
 public void launchContactPicker(View view) {

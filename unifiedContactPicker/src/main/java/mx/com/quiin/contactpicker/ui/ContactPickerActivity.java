@@ -8,10 +8,8 @@ import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 
 import java.util.TreeSet;
@@ -34,7 +32,9 @@ public class ContactPickerActivity extends AppCompatActivity {
     public static final String CP_EXTRA_SELECTION_COLOR = "CP_EXTRA_SELECTION_COLOR";
     public static final String CP_EXTRA_SELECTION_DRAWABLE = "CP_EXTRA_SELECTION_DRAWABLE";
     public static final String CP_EXTRA_FAB_DRAWABLE = "CP_EXTRA_DAB_DRAWABLE";
-    public static final String CP_EXTRA_FAB_COLOR= "CP_EXTRA_FAB_COLOR";
+    public static final String CP_EXTRA_FAB_COLOR = "CP_EXTRA_FAB_COLOR";
+    public static final String CP_EXTRA_MAX_SELECTIONS = "CP_EXTRA_MAX_SELECTIONS";
+    public static final String CP_EXTRA_SELECT_DISPLAY_NAME = "CP_EXTRA_SELECT_DISPLAY_NAME";
 
     public static final String [] CP_DEFAULT_PROJECTION = new String[] {
             ContactsContract.Data._ID,
@@ -63,6 +63,8 @@ public class ContactPickerActivity extends AppCompatActivity {
     private byte [] selectedDrawable;
     private byte[] fabDrawable;
     private String fabColor;
+    private int maxSelectedContacts;
+    private boolean selectDisplayName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,6 +96,8 @@ public class ContactPickerActivity extends AppCompatActivity {
             this.fabColor = intent.getStringExtra(CP_EXTRA_FAB_COLOR);
             this.fabDrawable = intent.getByteArrayExtra(CP_EXTRA_FAB_DRAWABLE);
             this.selectedDrawable = intent.getByteArrayExtra(CP_EXTRA_SELECTION_DRAWABLE);
+            this.maxSelectedContacts = intent.getIntExtra(CP_EXTRA_MAX_SELECTIONS, 0);
+            this.selectDisplayName = intent.getBooleanExtra(CP_EXTRA_SELECT_DISPLAY_NAME, false);
             cleanIfNeeded();
         }
     }
@@ -141,6 +145,14 @@ public class ContactPickerActivity extends AppCompatActivity {
 
     public String getSelect() {
         return select;
+    }
+
+    public int getMaxSelectedContacts() {
+        return maxSelectedContacts;
+    }
+
+    public boolean getSelectDisplayName() {
+        return selectDisplayName;
     }
 
     public String getSortBy() {

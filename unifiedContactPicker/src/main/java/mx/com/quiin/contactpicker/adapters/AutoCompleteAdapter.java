@@ -2,14 +2,12 @@ package mx.com.quiin.contactpicker.adapters;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Filter;
 import android.widget.Filterable;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.github.ivbaranov.mli.MaterialLetterIcon;
@@ -31,11 +29,13 @@ public class AutoCompleteAdapter extends ArrayAdapter<Contact> implements Filter
     private final int mResourceId;
     private final int[] mMaterialColors;
     private Filter mFilter = new ContactFilter();
+    private boolean selectDisplayName;
 
-    public AutoCompleteAdapter(Context context, int resource, List<Contact> objects) {
+    public AutoCompleteAdapter(Context context, int resource, List<Contact> objects, boolean selectDisplayName) {
         super(context, resource, objects);
         this.mContacts = objects;
         this.mResourceId = resource;
+        this.selectDisplayName = selectDisplayName;
         this.mMaterialColors = context.getResources().getIntArray(R.array.colors);
         this.tempContacts = new ArrayList<>(objects);
         this.suggestions = new ArrayList<>();
@@ -80,6 +80,10 @@ public class AutoCompleteAdapter extends ArrayAdapter<Contact> implements Filter
 
         @Override
         public CharSequence convertResultToString(Object resultValue) {
+            if (selectDisplayName) {
+                return ((Contact) resultValue).getDisplayName();
+            }
+
             return ((Contact) resultValue).getDefaultCommunication();
         }
 
