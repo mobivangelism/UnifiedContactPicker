@@ -102,7 +102,6 @@ public class ContactPickerFragment extends Fragment
         this.mNachoTextView.setMaxLines(2);
 
         this.mNachoTextView.setChipTokenizer(new SpanChipTokenizer<>(getContext(), new ContactChipCreator(), ChipSpan.class));
-
     }
 
     @Override
@@ -310,7 +309,8 @@ public class ContactPickerFragment extends Fragment
     private void setRecyclerView() {
         String selectedHex = mActivity.getSelectedColor();
         byte [] selectedDrawable = mActivity.getSelectedDrawable();
-        this.mContactAdapter = new ContactAdapter(getContext(), mContacts, this, selectedHex, selectedDrawable);
+        byte [] unselectedDrawable = mActivity.getUnSelectedDrawable();
+        this.mContactAdapter = new ContactAdapter(getContext(), mContacts, this, selectedHex, selectedDrawable, unselectedDrawable);
         mRecyclerView.swapAdapter(mContactAdapter, true);
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
         mRecyclerView.addItemDecoration(new DividerItemDecoration(getContext(), LinearLayoutManager.VERTICAL));

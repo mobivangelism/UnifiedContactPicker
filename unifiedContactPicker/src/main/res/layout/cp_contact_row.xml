@@ -21,13 +21,19 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 
-        <com.github.ivbaranov.mli.MaterialLetterIcon
-            android:id="@+id/letterIcon"
-            app:mli_letter_color="@color/white"
+        <com.makeramen.roundedimageview.RoundedImageView
+            android:id="@+id/cp_ivUnSelected"
             android:focusable="false"
+            android:scaleType="center"
+            android:visibility="gone"
+            android:background="@color/unselected"
+            android:src="@drawable/ic_done"
             android:focusableInTouchMode="false"
             android:layout_width="@dimen/contact_size"
-            android:layout_height="@dimen/contact_size" />
+            android:layout_height="@dimen/contact_size"
+            app:riv_corner_radius="30dip"
+            app:riv_mutate_background="true"
+            tools:ignore="ContentDescription" />
 
         <com.makeramen.roundedimageview.RoundedImageView
             android:id="@+id/cp_ivSelected"

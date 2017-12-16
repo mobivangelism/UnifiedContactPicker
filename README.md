@@ -112,6 +112,7 @@ The following UI views can be customized:
 | FAB color              | CP_EXTRA_FAB_COLOR        | hexColor       | String  |       -   |
 | Selection color        | CP_EXTRA_SELECTION_COLOR  | hexColor       | String  |       -   |
 | Selection Drawable     |CP_EXTRA_SELECTION_DRAWABLE| Image          | byte [] |use PickerUtils.sendDrawable()|
+| No Selection Drawable  |CP_EXTRA_NO_SELECTION_DRAWABLE| Image          | byte [] |use PickerUtils.sendDrawable()|
 | Fab drawable           | CP_EXTRA_FAB_DRAWABLE     | Image          | byte [] |use PickerUtils.sendDrawable()|
 | Chips                  | CP_EXTRA_SHOW_CHIPS       | boolean        | boolean |       -   |
 

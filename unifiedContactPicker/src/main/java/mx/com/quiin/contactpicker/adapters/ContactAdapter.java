@@ -14,7 +14,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bignerdranch.expandablerecyclerview.ExpandableRecyclerAdapter;
-import com.github.ivbaranov.mli.MaterialLetterIcon;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -39,13 +38,14 @@ public class ContactAdapter extends ExpandableRecyclerAdapter<Contact, String, C
     private List<Contact> mContacts;
     private List<Contact> mSelection;
     private final Bitmap selectedDrawable;
+    private final Bitmap unselectedDrawable;
     private final int selectedColor;
     private final int subtitleColor;
     private final ContactSelectionListener mListener;
     private final int selectedIconColor;
 
     public ContactAdapter(Context context, List<Contact> contacts, ContactSelectionListener listener,
-                          String selectedIconHex, byte[] selectedDrawable) {
+                          String selectedIconHex, byte[] selectedDrawable, byte[] unselectedDrawable) {
         super(contacts);
         this.mMaterialColors = context.getResources().getIntArray(R.array.colors);
         this.mContacts = contacts;
@@ -63,6 +63,11 @@ public class ContactAdapter extends ExpandableRecyclerAdapter<Contact, String, C
             this.selectedDrawable = PickerUtils.extractDrawable(selectedDrawable);
         else
             this.selectedDrawable = PickerUtils.extractDrawable(PickerUtils.sendDrawable(context.getResources(),R.drawable.ic_done));
+
+        if(unselectedDrawable != null)
+            this.unselectedDrawable = PickerUtils.extractDrawable(unselectedDrawable);
+        else
+            this.unselectedDrawable = PickerUtils.extractDrawable(PickerUtils.sendDrawable(context.getResources(),R.drawable.ic_done));
     }
 
 
@@ -118,8 +123,8 @@ public class ContactAdapter extends ExpandableRecyclerAdapter<Contact, String, C
 
             parentViewHolder.ivSelected.setBackgroundColor(this.selectedIconColor);
             parentViewHolder.ivSelected.setImageBitmap(selectedDrawable);
-            parentViewHolder.letterIcon.setLetter(contact.getInitial());
-            parentViewHolder.letterIcon.setShapeColor(mMaterialColors[position % mMaterialColors.length]);
+            parentViewHolder.ivUnSelected.setImageBitmap(unselectedDrawable);
+
             parentViewHolder.tvCommunication.setText(communication);
             parentViewHolder.tvDisplayName.setText(contact.getDisplayName());
 
@@ -257,17 +262,17 @@ public class ContactAdapter extends ExpandableRecyclerAdapter<Contact, String, C
 
     private void selectView(Contact contact, ContactViewHolder view) {
         ImageView ivSelected = view.ivSelected;
-        MaterialLetterIcon letterIcon = view.letterIcon;
+        ImageView ivUnSelected = view.ivUnSelected;
         TextView tvDisplayName = view.tvDisplayName;
         TextView tvCommunication = view.tvCommunication;
 
         if(contact.isSelected()){
-            letterIcon.setVisibility(View.GONE);
+            ivUnSelected.setVisibility(View.GONE);
             ivSelected.setVisibility(View.VISIBLE);
             tvDisplayName.setTextColor(selectedColor);
             tvCommunication.setTextColor(selectedColor);
         }else{
-            letterIcon.setVisibility(View.VISIBLE);
+            ivUnSelected.setVisibility(View.VISIBLE);
             ivSelected.setVisibility(View.GONE);
             tvDisplayName.setTextColor(Color.BLACK);
             tvCommunication.setTextColor(subtitleColor);

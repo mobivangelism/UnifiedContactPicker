@@ -19,13 +19,14 @@ public class ContactViewHolder extends ParentViewHolder{
 
     public MaterialLetterIcon letterIcon;
     public TextView tvDisplayName, tvCommunication;
-    public ImageView ivSelected, ivSelectedCommunication, ivExpandArrow;
+    public ImageView ivSelected, ivSelectedCommunication, ivExpandArrow, ivUnSelected;
     public View expandableArea;
 
     public ContactViewHolder(View view) {
         super(view);
         letterIcon = (MaterialLetterIcon) view.findViewById(R.id.letterIcon);
         ivSelected = (ImageView) view.findViewById(R.id.cp_ivSelected);
+        ivUnSelected = (ImageView) view.findViewById(R.id.cp_ivUnSelected);
         ivSelectedCommunication = (ImageView) view.findViewById(R.id.cp_ivSelectedComm);
         ivExpandArrow = (ImageView) view.findViewById(R.id.cp_arrowExpand);
         tvDisplayName = (TextView) view.findViewById(R.id.tvDisplayName);

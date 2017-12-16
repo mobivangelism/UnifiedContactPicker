@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.TreeSet;
 
 import mx.com.quiin.contactpicker.Contact;
+import mx.com.quiin.contactpicker.PickerUtils;
 import mx.com.quiin.contactpicker.SimpleContact;
 import mx.com.quiin.contactpicker.adapters.ContactAdapter;
 import mx.com.quiin.contactpicker.interfaces.ContactSelectionListener;
@@ -48,6 +49,7 @@ public class MainActivity extends AppCompatActivity implements ContactSelectionL
             Intent contactPicker = new Intent(this, ContactPickerActivity.class);
             contactPicker.putExtra(ContactPickerActivity.CP_EXTRA_MAX_SELECTIONS, 5);
             contactPicker.putExtra(ContactPickerActivity.CP_EXTRA_SELECT_DISPLAY_NAME, true);
+            contactPicker.putExtra(ContactPickerActivity.CP_EXTRA_NO_SELECTION_DRAWABLE, PickerUtils.sendDrawable(getResources(), R.drawable.ic_done));
             startActivityForResult(contactPicker, CONTACT_PICKER_REQUEST);
         }else{
             ActivityCompat.requestPermissions(this,
@@ -81,7 +83,7 @@ public class MainActivity extends AppCompatActivity implements ContactSelectionL
     }
 
     private void setRecyclerView() {
-        ContactAdapter adapter = new ContactAdapter(this,mContacts, this, null, null);
+        ContactAdapter adapter = new ContactAdapter(this,mContacts, this, null, null, null);
         mRecyclerView.setAdapter(adapter);
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
         mRecyclerView.addItemDecoration(new DividerItemDecoration(this, LinearLayoutManager.VERTICAL));

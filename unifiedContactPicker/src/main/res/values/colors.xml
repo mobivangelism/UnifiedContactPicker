@@ -20,4 +20,5 @@
     <color name="white">#FFFFFFFF</color>
     <color name="subtitle">#8a000000</color>
     <color name="selected">#66009688</color>
+    <color name="unselected">#FFDDDDDD</color>
 </resources>

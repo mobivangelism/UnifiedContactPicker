@@ -31,6 +31,7 @@ public class ContactPickerActivity extends AppCompatActivity {
     public static final String CP_EXTRA_HAS_CUSTOM_SELECTION_ARGS = "CP_EXTRA_HAS_CUSTOM_SELECTION_ARGS";
     public static final String CP_EXTRA_SELECTION_COLOR = "CP_EXTRA_SELECTION_COLOR";
     public static final String CP_EXTRA_SELECTION_DRAWABLE = "CP_EXTRA_SELECTION_DRAWABLE";
+    public static final String CP_EXTRA_NO_SELECTION_DRAWABLE = "CP_EXTRA_NO_SELECTION_DRAWABLE";
     public static final String CP_EXTRA_FAB_DRAWABLE = "CP_EXTRA_DAB_DRAWABLE";
     public static final String CP_EXTRA_FAB_COLOR = "CP_EXTRA_FAB_COLOR";
     public static final String CP_EXTRA_MAX_SELECTIONS = "CP_EXTRA_MAX_SELECTIONS";
@@ -61,6 +62,7 @@ public class ContactPickerActivity extends AppCompatActivity {
     private String sortBy;
     private String selectedColor;
     private byte [] selectedDrawable;
+    private byte [] unselectedDrawable;
     private byte[] fabDrawable;
     private String fabColor;
     private int maxSelectedContacts;
@@ -96,6 +98,7 @@ public class ContactPickerActivity extends AppCompatActivity {
             this.fabColor = intent.getStringExtra(CP_EXTRA_FAB_COLOR);
             this.fabDrawable = intent.getByteArrayExtra(CP_EXTRA_FAB_DRAWABLE);
             this.selectedDrawable = intent.getByteArrayExtra(CP_EXTRA_SELECTION_DRAWABLE);
+            this.unselectedDrawable = intent.getByteArrayExtra(CP_EXTRA_NO_SELECTION_DRAWABLE);
             this.maxSelectedContacts = intent.getIntExtra(CP_EXTRA_MAX_SELECTIONS, 0);
             this.selectDisplayName = intent.getBooleanExtra(CP_EXTRA_SELECT_DISPLAY_NAME, false);
             cleanIfNeeded();
@@ -171,6 +174,9 @@ public class ContactPickerActivity extends AppCompatActivity {
         return selectedDrawable;
     }
 
+    public byte[] getUnSelectedDrawable() {
+        return unselectedDrawable;
+    }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
