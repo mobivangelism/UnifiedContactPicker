@@ -1,5 +1,6 @@
 package mx.com.quiin.contactpicker.ui;
 
+import android.content.Context;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.ContactsContract;
@@ -18,6 +19,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.MultiAutoCompleteTextView;
 import android.widget.Toast;
 
@@ -218,7 +220,17 @@ public class ContactPickerFragment extends Fragment
                     }
                 }
             }
+
+            hideKeyboard();
         }
+    }
+
+    private void hideKeyboard() {
+        final InputMethodManager imm = (InputMethodManager) mActivity.getSystemService(Context.INPUT_METHOD_SERVICE);
+
+        try {
+            imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
+        } catch (NullPointerException npe) {}
     }
 
     /**
