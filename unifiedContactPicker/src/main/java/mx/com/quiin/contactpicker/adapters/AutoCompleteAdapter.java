@@ -109,14 +109,13 @@ public class AutoCompleteAdapter extends ArrayAdapter<Contact> implements Filter
 
         @Override
         protected void publishResults(CharSequence constraint, FilterResults results) {
-
-            List<Contact> filterList = (ArrayList<Contact>) results.values;
-            if (results.count > 0) {
+            if (results != null && results.count > 0) {
+                List<Contact> filterList = (ArrayList<Contact>)((ArrayList<Contact>) results.values).clone();
                 clear();
                 for (Contact contact : filterList) {
                     add(contact);
-                    notifyDataSetChanged();
                 }
+                notifyDataSetChanged();
             }
 
         }
