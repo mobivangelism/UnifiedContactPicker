@@ -135,7 +135,7 @@ public class ContactPickerFragment extends Fragment
      **/
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        if(cursor.moveToFirst()){
+        if(cursor != null && cursor.moveToFirst()){
             do{
                 String displayName = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
                 String communication = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
