@@ -392,23 +392,25 @@ public class ContactPickerFragment extends Fragment
                 }
             }
 
-            if (selectDisplayName) {
-                HashMap<String, SimpleContact> selected = this.mContactAdapter.getSelectionKeyedByDisplayName();
+            if (this.mContactAdapter != null) {
+                if (selectDisplayName) {
+                    HashMap<String, SimpleContact> selected = this.mContactAdapter.getSelectionKeyedByDisplayName();
 
-                for (SimpleContact simpleContact : selectedContacts) {
-                    if(selected.containsKey(simpleContact.getDisplayName()))
-                        toReturn.add(selected.get(simpleContact.getDisplayName()));
-                    else
-                        toReturn.add(simpleContact);
-                }
-            } else {
-                HashMap<String, SimpleContact> selected = this.mContactAdapter.getSelectionKeyedByCommunication();
+                    for (SimpleContact simpleContact : selectedContacts) {
+                        if(selected.containsKey(simpleContact.getDisplayName()))
+                            toReturn.add(selected.get(simpleContact.getDisplayName()));
+                        else
+                            toReturn.add(simpleContact);
+                    }
+                } else {
+                    HashMap<String, SimpleContact> selected = this.mContactAdapter.getSelectionKeyedByCommunication();
 
-                for (SimpleContact simpleContact : selectedContacts) {
-                    if(selected.containsKey(simpleContact.getCommunication()))
-                        toReturn.add(selected.get(simpleContact.getCommunication()));
-                    else
-                        toReturn.add(simpleContact);
+                    for (SimpleContact simpleContact : selectedContacts) {
+                        if(selected.containsKey(simpleContact.getCommunication()))
+                            toReturn.add(selected.get(simpleContact.getCommunication()));
+                        else
+                            toReturn.add(simpleContact);
+                    }
                 }
             }
         }
