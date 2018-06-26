@@ -139,18 +139,22 @@ public class ContactPickerFragment extends Fragment
             do{
                 String displayName = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
                 String communication = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                Contact newContact = new Contact(displayName);
 
-                Contact suggestion = new Contact(displayName);
-                suggestion.addCommunication(communication);
-                mSuggestions.add(suggestion);
+                if (communication != null) {
+                    Contact newContact = new Contact(displayName);
 
-                if(!mContacts.contains(newContact)){
-                    newContact.addCommunication(communication);
-                    mContacts.add(newContact);
-                }else{
-                    Contact existingContact = mContacts.get(mContacts.indexOf(newContact));
-                    existingContact.addCommunication(communication);
+                    Contact suggestion = new Contact(displayName);
+
+                    suggestion.addCommunication(communication);
+                    mSuggestions.add(suggestion);
+
+                    if(!mContacts.contains(newContact)){
+                        newContact.addCommunication(communication);
+                        mContacts.add(newContact);
+                    }else{
+                        Contact existingContact = mContacts.get(mContacts.indexOf(newContact));
+                        existingContact.addCommunication(communication);
+                    }
                 }
 
             }while(cursor.moveToNext());
@@ -343,7 +347,10 @@ public class ContactPickerFragment extends Fragment
             mNachoTextView.append(communication);
             int start = mNachoTextView.getText().toString().indexOf(communication);
             int last = mNachoTextView.getText().length();
-            mNachoTextView.chipify(start,last);
+
+            if (start >= 0) {
+                mNachoTextView.chipify(start,last);
+            }
         }else Log.e(TAG, "mNachoTextView is null");
     }
 
