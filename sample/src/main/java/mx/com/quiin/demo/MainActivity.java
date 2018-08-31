@@ -47,7 +47,8 @@ public class MainActivity extends AppCompatActivity implements ContactSelectionL
         int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS);
         if(permissionCheck == PackageManager.PERMISSION_GRANTED){
             Intent contactPicker = new Intent(this, ContactPickerActivity.class);
-            contactPicker.putExtra(ContactPickerActivity.CP_EXTRA_MAX_SELECTIONS, 5);
+            contactPicker.putExtra(ContactPickerActivity.CP_EXTRA_MAX_SELECTIONS, 2);
+            contactPicker.putExtra(ContactPickerActivity.CP_EXTRA_RETURN_AFTER_MAX_SELECTED, true);
             contactPicker.putExtra(ContactPickerActivity.CP_EXTRA_SELECT_DISPLAY_NAME, true);
             contactPicker.putExtra(ContactPickerActivity.CP_EXTRA_NO_SELECTION_DRAWABLE, PickerUtils.sendDrawable(getResources(), R.drawable.ic_done));
             startActivityForResult(contactPicker, CONTACT_PICKER_REQUEST);

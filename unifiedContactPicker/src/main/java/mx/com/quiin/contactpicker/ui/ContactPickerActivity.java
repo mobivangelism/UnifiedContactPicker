@@ -35,6 +35,7 @@ public class ContactPickerActivity extends AppCompatActivity {
     public static final String CP_EXTRA_FAB_DRAWABLE = "CP_EXTRA_DAB_DRAWABLE";
     public static final String CP_EXTRA_FAB_COLOR = "CP_EXTRA_FAB_COLOR";
     public static final String CP_EXTRA_MAX_SELECTIONS = "CP_EXTRA_MAX_SELECTIONS";
+    public static final String CP_EXTRA_RETURN_AFTER_MAX_SELECTED = "CP_EXTRA_RETURN_AFTER_MAX_SELECTED";
     public static final String CP_EXTRA_SELECT_DISPLAY_NAME = "CP_EXTRA_SELECT_DISPLAY_NAME";
 
     public static final String [] CP_DEFAULT_PROJECTION = new String[] {
@@ -66,6 +67,7 @@ public class ContactPickerActivity extends AppCompatActivity {
     private byte[] fabDrawable;
     private String fabColor;
     private int maxSelectedContacts;
+    private boolean returnAfterMaxSelected;
     private boolean selectDisplayName;
 
     @Override
@@ -100,6 +102,7 @@ public class ContactPickerActivity extends AppCompatActivity {
             this.selectedDrawable = intent.getByteArrayExtra(CP_EXTRA_SELECTION_DRAWABLE);
             this.unselectedDrawable = intent.getByteArrayExtra(CP_EXTRA_NO_SELECTION_DRAWABLE);
             this.maxSelectedContacts = intent.getIntExtra(CP_EXTRA_MAX_SELECTIONS, 0);
+            this.returnAfterMaxSelected = intent.getBooleanExtra(CP_EXTRA_RETURN_AFTER_MAX_SELECTED, false);
             this.selectDisplayName = intent.getBooleanExtra(CP_EXTRA_SELECT_DISPLAY_NAME, false);
             cleanIfNeeded();
         }
@@ -129,13 +132,18 @@ public class ContactPickerActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                TreeSet<SimpleContact> selected = mFragment.getSelected();
-                Intent result = new Intent();
-                result.putExtra(CP_SELECTED_CONTACTS, selected);
-                setResult(RESULT_OK,result);
-                finish();
+                returnContacts();
             }
         });
+    }
+
+    public void returnContacts()
+    {
+        TreeSet<SimpleContact> selected = mFragment.getSelected();
+        Intent result = new Intent();
+        result.putExtra(CP_SELECTED_CONTACTS, selected);
+        setResult(RESULT_OK,result);
+        finish();
     }
 
     public boolean isShowChips() {
@@ -148,6 +156,10 @@ public class ContactPickerActivity extends AppCompatActivity {
 
     public String getSelect() {
         return select;
+    }
+
+    public boolean mustReturnAfterMaxSelected() {
+        return returnAfterMaxSelected;
     }
 
     public int getMaxSelectedContacts() {

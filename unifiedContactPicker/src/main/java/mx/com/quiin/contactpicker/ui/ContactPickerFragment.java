@@ -56,6 +56,7 @@ public class ContactPickerFragment extends Fragment
     private String[] selectionArgs;
     private String sortBy;
     private int maxSelectedContacts;
+    private boolean returnAfterMaxSelected;
     private boolean selectDisplayName;
 
     private static final int CONTACT_LOADER_ID = 666;
@@ -261,6 +262,8 @@ public class ContactPickerFragment extends Fragment
         } else {
             addChip(communication);
         }
+
+        canSelectContact();
     }
 
     /**
@@ -314,9 +317,13 @@ public class ContactPickerFragment extends Fragment
      * Called when max number of contacts, as defined by CP_MAX_SELECTIONS reached
      */
     public void onMaxContactsReached() {
-        Toast.makeText(getContext(),
-                String.format(getResources().getQuantityString(R.plurals.max_contacts_selected, maxSelectedContacts), maxSelectedContacts),
-                Toast.LENGTH_LONG).show();
+        if (!returnAfterMaxSelected) {
+            Toast.makeText(getContext(),
+                    String.format(getResources().getQuantityString(R.plurals.max_contacts_selected, maxSelectedContacts), maxSelectedContacts),
+                    Toast.LENGTH_LONG).show();
+        } else {
+            mActivity.returnContacts();
+        }
     }
 
     /*** Private methods ***/
@@ -376,6 +383,7 @@ public class ContactPickerFragment extends Fragment
         this.projection = mActivity.getProjection();
         this.selection = mActivity.getSelect();
         this.maxSelectedContacts = mActivity.getMaxSelectedContacts();
+        this.returnAfterMaxSelected = mActivity.mustReturnAfterMaxSelected();
         this.selectionArgs = mActivity.getSelectArgs();
         this.sortBy = mActivity.getSortBy();
     }
