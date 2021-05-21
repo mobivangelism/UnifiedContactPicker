@@ -1,8 +1,6 @@
 package mx.com.quiin.contactpicker;
 
-import android.net.Uri;
-
-
+import android.text.TextUtils;
 
 import com.bignerdranch.expandablerecyclerview.model.Parent;
 
@@ -55,6 +53,10 @@ public class Contact implements Parent<String>, Serializable{
 
     /**** Setters******/
     public void setDisplayName(String displayName) {
+        if (displayName == null) {
+            displayName = "";
+        }
+
         this.displayName = displayName;
     }
 
@@ -66,6 +68,10 @@ public class Contact implements Parent<String>, Serializable{
         communication = communication.replaceAll(" ", "");
         if(!communications.contains(communication)) {
             communications.add(communication);
+        }
+
+        if (TextUtils.isEmpty(displayName)) {
+            displayName = communication;
         }
     }
 
